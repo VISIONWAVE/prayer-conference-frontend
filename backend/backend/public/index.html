@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Ibadan Prayer Conference</title>
+<style>
+  :root{
+    --indigo-deep: #17213B;
+    --gold: #C9972E;
+    --paper: #FAF5E8;
+    --ink: #201C14;
+    --ink-soft: rgba(32,28,20,0.62);
+    --line: rgba(23,33,59,0.14);
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 24px;
+  }
+  header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  h1{
+    font-size: 22px;
+    margin: 0;
+  }
+  .stats{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .stat{
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  .stat b{ display: block; font-size: 18px; color: var(--indigo-deep); }
+  .controls{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  select, input[type="text"]{
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  button{
+    background: var(--indigo-deep);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  table{
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  th, td{
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+    max-width: 220px;
+    overflow-wrap: break-word;
+  }
+  th{
+    background: var(--indigo-deep);
+    color: white;
+    position: sticky;
+    top: 0;
+  }
+  tr:nth-child(even){ background: rgba(23,33,59,0.03); }
+  .type-badge{
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    background: rgba(201,151,46,0.15);
+    color: #8a6415;
+  }
+  .empty{ padding: 30px; text-align: center; color: var(--ink-soft); }
+
+  @media print {
+    .controls, button { display: none; }
+    body{ padding: 0; background: white; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Ibadan Prayer Conference — Submissions</h1>
+  <button onclick="window.print()">Print</button>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls">
+  <select id="typeFilter" onchange="render()">
+    <option value="">All types</option>
+  </select>
+  <input type="text" id="searchBox" placeholder="Search name or phone..." oninput="render()">
+</div>
+
+<div id="tableWrap">Loading…</div>
+
+<script>
+  let allRows = [];
+
+  async function load(){
+    try{
+      const res = await fetch('/api/submissions', { credentials: 'include' });
+      allRows = await res.json();
+      populateFilter();
+      renderStats();
+      render();
+    }catch(err){
+      document.getElementById('tableWrap').innerHTML = '<p class="empty">Could not load data.</p>';
+    }
+  }
+
+  function populateFilter(){
+    const types = [...new Set(allRows.map(r => r.type))];
+    const sel = document.getElementById('typeFilter');
+    types.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t;
+      sel.appendChild(opt);
+    });
+  }
+
+  function renderStats(){
+    const total = allRows.length;
+    const byType = {};
+    allRows.forEach(r => { byType[r.type] = (byType[r.type] || 0) + 1; });
+
+    let html = `<div class="stat"><b>${total}</b>Total submissions</div>`;
+    Object.entries(byType).forEach(([type, count]) => {
+      html += `<div class="stat"><b>${count}</b>${type}</div>`;
+    });
+    document.getElementById('stats').innerHTML = html;
+  }
+
+  function render(){
+    const typeFilter = document.getElementById('typeFilter').value;
+    const search = document.getElementById('searchBox').value.toLowerCase();
+
+    let rows = allRows;
+    if(typeFilter) rows = rows.filter(r => r.type === typeFilter);
+    if(search) rows = rows.filter(r =>
+      (r.name || '').toLowerCase().includes(search) ||
+      (r.phone || '').toLowerCase().includes(search)
+    );
+
+    if(rows.length === 0){
+      document.getElementById('tableWrap').innerHTML = '<p class="empty">No submissions found.</p>';
+      return;
+    }
+
+    let html = '<table><thead><tr>' +
+      '<th>Date</th><th>Type</th><th>Name</th><th>Phone</th><th>Email</th>' +
+      '<th>Heard About</th><th>Reason</th><th>Free Time</th><th>Interest</th>' +
+      '</tr></thead><tbody>';
+
+    rows.forEach(r => {
+      html += `<tr>
+        <td>${new Date(r.created_at).toLocaleString()}</td>
+        <td><span class="type-badge">${escapeHtml(r.type)}</span></td>
+        <td>${escapeHtml(r.name)}</td>
+        <td>${escapeHtml(r.phone)}</td>
+        <td>${escapeHtml(r.email)}</td>
+        <td>${escapeHtml(r.heard)}</td>
+        <td>${escapeHtml(r.reason)}</td>
+        <td>${escapeHtml(r.free_time)}</td>
+        <td>${escapeHtml(r.interest)}</td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('tableWrap').innerHTML = html;
+  }
+
+  function escapeHtml(str){
+    if(!str) return '';
+    return str.replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  load();
+</script>
+
+</body>
+</html>

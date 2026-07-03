@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — Ibadan Prayer Conference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --indigo-deep: #17213B;
+    --gold: #C9972E;
+    --gold-soft: #E4B95C;
+    --paper: #FAF5E8;
+    --ink: #201C14;
+    --ink-soft: rgba(32,28,20,0.62);
+    --line: rgba(23,33,59,0.14);
+    --white: #FFFDF8;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Work Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  body.page-ready{ opacity: 1; }
+  body.page-leaving{ opacity: 0; }
+
+  .hero{
+    position: relative;
+    background: var(--indigo-deep);
+    color: var(--white);
+    padding: 48px 24px 80px;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .hero-video{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .hero-overlay{
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(23,33,59,0.82) 0%, rgba(23,33,59,0.88) 60%, var(--paper) 100%);
+  }
+
+  .hero-inner{ position: relative; z-index: 2; max-width: 520px; margin: 0 auto; }
+
+  .back-link{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--gold-soft);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+
+  .eyebrow{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+    margin: 0 0 16px;
+  }
+
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 6vw, 40px);
+    line-height: 1.1;
+    margin: 0 0 12px;
+  }
+
+  .hero p.sub{
+    font-size: 15px;
+    color: rgba(255,253,248,0.78);
+    margin: 0;
+  }
+
+  main{
+    max-width: 520px;
+    margin: -44px auto 0;
+    padding: 0 20px 80px;
+    position: relative;
+    z-index: 3;
+  }
+
+  .card{
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 26px 22px;
+    box-shadow: 0 8px 24px rgba(23,33,59,0.08);
+  }
+
+  .field{ margin-bottom: 16px; text-align: left; }
+
+  .field label{
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  .field input[type="text"],
+  .field input[type="tel"],
+  .field input[type="email"],
+  .field select{
+    width: 100%;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 13px;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 14.5px;
+    color: var(--ink);
+  }
+
+  .field input:focus, .field select:focus{
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  .form-error{
+    display: none;
+    font-size: 12px;
+    color: #B8452F;
+    background: rgba(184,69,47,0.08);
+    border: 1px solid rgba(184,69,47,0.25);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 14px;
+  }
+
+  .form-error.show{ display: block; }
+
+  .submit-btn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: var(--indigo-deep);
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+
+  .submit-btn:active{ transform: scale(0.98); }
+
+  .placeholder-note{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--gold);
+    background: rgba(201,151,46,0.1);
+    border: 1px dashed rgba(201,151,46,0.4);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+
+  .copy-note{
+    display: none;
+    font-size: 12px;
+    color: #1FAA53;
+    background: rgba(31,170,83,0.08);
+    border: 1px solid rgba(31,170,83,0.3);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+
+  .copy-note.show{ display: block; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <video class="hero-video" autoplay muted loop playsinline poster="prayer-bg-poster.jpg">
+    <source src="prayer-bg.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <a href="index.html" class="back-link" onclick="return goTo(event,'index.html')">&larr; Back</a>
+    <p class="eyebrow">Ibadan Prayer Conference</p>
+    <h1>Register to attend</h1>
+    <p class="sub">A few details so we can prepare for you.</p>
+  </div>
+</div>
+
+<main>
+  <div class="card">
+    <div class="form-error" id="reg-error">Please fill in your name and phone number before continuing.</div>
+
+    <div class="field">
+      <label for="reg-name">Full name</label>
+      <input type="text" id="reg-name" placeholder="e.g. Tolu Adebayo">
+    </div>
+
+    <div class="field">
+      <label for="reg-phone">Phone number</label>
+      <input type="tel" id="reg-phone" placeholder="e.g. 08012345678">
+    </div>
+
+    <div class="field">
+      <label for="reg-email">Email address</label>
+      <input type="email" id="reg-email" placeholder="you@example.com">
+    </div>
+
+    <div class="field">
+      <label for="reg-interest">Would you like to volunteer?</label>
+      <select id="reg-interest">
+        <option value="Not sure yet">Not sure yet</option>
+        <option value="Yes, I want to volunteer">Yes, I want to volunteer</option>
+        <option value="No, attending only">No, attending only</option>
+      </select>
+    </div>
+
+    <button class="submit-btn" onclick="submitRegistration()">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.6 6.32A8.86 8.86 0 0 0 12.05 4a8.94 8.94 0 0 0-7.75 13.4L3 21l3.7-1.28A8.93 8.93 0 0 0 12.05 21h.01a8.94 8.94 0 0 0 5.63-15.7l-.09.01zM12.06 19.4a7.4 7.4 0 0 1-3.78-1.03l-.27-.16-2.8.97.94-2.73-.18-.28a7.4 7.4 0 1 1 13.75-3.85 7.42 7.42 0 0 1-7.66 7.08zm4.08-5.53c-.22-.11-1.32-.65-1.53-.73-.2-.08-.35-.11-.5.11-.15.22-.57.73-.7.88-.13.15-.26.16-.48.05-.22-.11-.94-.35-1.79-1.12-.66-.6-1.11-1.33-1.24-1.55-.13-.22-.01-.34.1-.45.1-.1.22-.26.33-.4.11-.13.15-.22.22-.37.07-.15.04-.28-.02-.4-.06-.11-.5-1.22-.69-1.67-.18-.44-.37-.38-.5-.39h-.43c-.15 0-.4.06-.6.28-.2.22-.8.78-.8 1.9 0 1.12.82 2.2.93 2.35.11.15 1.62 2.5 3.94 3.5.55.24.98.38 1.31.49.55.17 1.06.15 1.45.09.44-.07 1.32-.54 1.51-1.06.19-.52.19-.96.13-1.06-.06-.1-.2-.15-.42-.26z"/></svg>
+      Submit Registration
+    </button>
+
+    <p class="copy-note" id="reg-copy-note">✓ Your answers were copied — paste them once you're in the group.</p>
+    <p class="placeholder-note">Submitting copies your answers and opens the registration WhatsApp group — replace PASTE_REGISTRATION_GROUP_LINK in the code with the real group invite link.</p>
+  </div>
+</main>
+
+<script>
+  window.addEventListener('DOMContentLoaded', function(){
+    requestAnimationFrame(() => document.body.classList.add('page-ready'));
+  });
+
+  function goTo(e, url){
+    e.preventDefault();
+    document.body.classList.remove('page-ready');
+    document.body.classList.add('page-leaving');
+    setTimeout(() => { window.location.href = url; }, 320);
+    return false;
+  }
+
+  // Replace with your deployed backend URL, e.g. https://your-app.onrender.com
+  const BACKEND_URL = 'PASTE_YOUR_BACKEND_URL_HERE';
+
+  function sendToBackend(payload){
+    if(!BACKEND_URL || BACKEND_URL.indexOf('PASTE_YOUR') === 0) return;
+    fetch(BACKEND_URL + '/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(err => console.error('Backend submit failed:', err));
+  }
+
+  function submitRegistration(){
+    const name = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const interest = document.getElementById('reg-interest').value;
+    const errorBox = document.getElementById('reg-error');
+
+    if(!name || !phone){
+      errorBox.classList.add('show');
+      return;
+    }
+    errorBox.classList.remove('show');
+
+    sendToBackend({
+      type: 'Registration',
+      name: name,
+      phone: phone,
+      email: email,
+      heard: '',
+      reason: '',
+      freeTime: '',
+      interest: interest
+    });
+
+    const message =
+      'Hello, I would like to register for the Ibadan Prayer Conference.\n\n' +
+      'Name: ' + name + '\n' +
+      'Phone: ' + phone + '\n' +
+      'Email: ' + (email || 'Not provided') + '\n' +
+      'Volunteer interest: ' + interest;
+
+    const REGISTRATION_GROUP_LINK = 'https://chat.whatsapp.com/PASTE_REGISTRATION_GROUP_LINK';
+
+    const finish = () => {
+      window.open(REGISTRATION_GROUP_LINK, '_blank');
+      const note = document.getElementById('reg-copy-note');
+      if(note){
+        note.classList.add('show');
+        setTimeout(() => note.classList.remove('show'), 6000);
+      }
+    };
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(message).then(finish).catch(finish);
+    } else {
+      finish();
+    }
+  }
+</script>
+
+</body>
+</html>
