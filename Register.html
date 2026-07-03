@@ -269,12 +269,8 @@
     return false;
   }
 
-  // Replace with your deployed backend URL, e.g. https://your-app.onrender.com
-  const BACKEND_URL = 'PASTE_YOUR_BACKEND_URL_HERE';
-
   function sendToBackend(payload){
-    if(!BACKEND_URL || BACKEND_URL.indexOf('PASTE_YOUR') === 0) return;
-    fetch(BACKEND_URL + '/api/submit', {
+    fetch('/api/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
