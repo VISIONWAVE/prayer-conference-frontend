@@ -81,7 +81,6 @@
     color: #8a6415;
   }
   .empty{ padding: 30px; text-align: center; color: var(--ink-soft); }
-
   .login-box{
     max-width: 340px;
     margin: 80px auto;
@@ -93,9 +92,8 @@
   }
   .login-box h2{ font-size: 18px; margin: 0 0 16px; }
   .login-box input{ width: 100%; margin-bottom: 10px; }
-  .login-error{ color: #B8452F; font-size: 12.5px; margin-top: 8px; display: none; }
+  .login-error{ color: #B8452F; font-size: 12.5px; margin-top: 8px; display: none; text-align: left; white-space: pre-wrap; }
   .login-error.show{ display: block; }
-
   @media print {
     .controls, button, .login-box { display: none; }
     body{ padding: 0; background: white; }
@@ -103,33 +101,27 @@
 </style>
 </head>
 <body>
-
 <div id="loginScreen" class="login-box">
   <h2>Admin Login</h2>
   <input type="text" id="loginUser" placeholder="Username">
   <input type="password" id="loginPass" placeholder="Password">
   <button onclick="login()" style="width:100%">Log in</button>
-  <p class="login-error" id="loginError">Incorrect username or password.</p>
+  <p class="login-error" id="loginError"></p>
 </div>
-
 <div id="dashboard" style="display:none">
   <header>
     <h1>Ibadan Prayer Conference — Submissions</h1>
     <button onclick="window.print()">Print</button>
   </header>
-
   <div class="stats" id="stats"></div>
-
   <div class="controls">
     <select id="typeFilter" onchange="render()">
       <option value="">All types</option>
     </select>
     <input type="text" id="searchBox" placeholder="Search name or phone..." oninput="render()">
   </div>
-
-  <div id="tableWrap">Loading…</div>
+  <div id="tableWrap">Loading...</div>
 </div>
-
 <script>
   let allRows = [];
   let authHeader = '';
@@ -140,12 +132,32 @@
     const errorBox = document.getElementById('loginError');
     const candidate = 'Basic ' + btoa(user + ':' + pass);
 
+    errorBox.classList.remove('show');
+    errorBox.textContent = '';
+
     try{
       const res = await fetch('/api/submissions', { headers: { Authorization: candidate } });
-      if(!res.ok){
+
+      if(res.status === 401){
+        errorBox.textContent = 'Incorrect username or password.';
         errorBox.classList.add('show');
         return;
       }
+
+      if(!res.ok){
+        let detail = '';
+        try{
+          const body = await res.json();
+          detail = body.message || JSON.stringify(body);
+        }catch(e){
+          detail = await res.text().catch(() => '');
+        }
+        errorBox.textContent = 'Server error (status ' + res.status + '): ' + detail +
+          '\n\nThis usually means TURSO_DATABASE_URL or TURSO_AUTH_TOKEN is missing or wrong in Vercel, or the "submissions" table was not created yet.';
+        errorBox.classList.add('show');
+        return;
+      }
+
       authHeader = candidate;
       allRows = await res.json();
       sessionStorage.setItem('admin_auth', authHeader);
@@ -155,6 +167,7 @@
       renderStats();
       render();
     }catch(err){
+      errorBox.textContent = 'Network error: ' + err.message + '\n\nCould not reach /api/submissions at all — check the deployment is live.';
       errorBox.classList.add('show');
     }
   }
@@ -191,7 +204,6 @@
     const total = allRows.length;
     const byType = {};
     allRows.forEach(r => { byType[r.type] = (byType[r.type] || 0) + 1; });
-
     let html = `<div class="stat"><b>${total}</b>Total submissions</div>`;
     Object.entries(byType).forEach(([type, count]) => {
       html += `<div class="stat"><b>${count}</b>${escapeHtml(type)}</div>`;
@@ -202,24 +214,20 @@
   function render(){
     const typeFilter = document.getElementById('typeFilter').value;
     const search = document.getElementById('searchBox').value.toLowerCase();
-
     let rows = allRows;
     if(typeFilter) rows = rows.filter(r => r.type === typeFilter);
     if(search) rows = rows.filter(r =>
       (r.name || '').toLowerCase().includes(search) ||
       (r.phone || '').toLowerCase().includes(search)
     );
-
     if(rows.length === 0){
       document.getElementById('tableWrap').innerHTML = '<p class="empty">No submissions found.</p>';
       return;
     }
-
     let html = '<table><thead><tr>' +
       '<th>Date</th><th>Type</th><th>Name</th><th>Phone</th><th>Email</th>' +
       '<th>Heard About</th><th>Reason</th><th>Free Time</th><th>Interest</th>' +
       '</tr></thead><tbody>';
-
     rows.forEach(r => {
       html += `<tr>
         <td>${new Date(r.created_at).toLocaleString()}</td>
@@ -233,7 +241,6 @@
         <td>${escapeHtml(r.interest)}</td>
       </tr>`;
     });
-
     html += '</tbody></table>';
     document.getElementById('tableWrap').innerHTML = html;
   }
@@ -247,6 +254,5 @@
 
   tryStoredAuth();
 </script>
-
 </body>
 </html>

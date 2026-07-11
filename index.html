@@ -535,7 +535,8 @@
 <body>
 
 <div class="hero">
-  <video class="hero-video" autoplay muted loop playsinline poster="prayer-bg-poster.jpg">
+  <!-- 'playsinline' removed for Firefox compatibility warning; iOS still supports 'playsinline' via webkit-playsinline if needed -->
+  <video class="hero-video" autoplay muted loop poster="prayer-bg-poster.jpg">
     <source src="prayer-bg.mp4" type="video/mp4">
   </video>
   <div class="hero-overlay"></div>

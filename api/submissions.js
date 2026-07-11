@@ -1,9 +1,8 @@
 import { createClient } from '@libsql/client';
 
 const client = createClient({
-  url: process.env.TURSO_DATABASE_URL,
-  authToken: process.env.TURSO_AUTH_TOKEN
-});
+  url: process.env.libsql://prayer-conference-visionwave.aws-ap-northeast-1.turso.io,
+  authToken: process.env.eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODMxNTE0ODgsImlkIjoiMDE5ZjJjMTItOGYwMS03NWRlLWFjMTAtZWI5ZGU5MzU1NWMzIiwia2lkIjoiaGVOdGIzSy1CSmZYU3JEbTA3STJiVTA2b2Fuc2F6QjZObzVfUGRVNlExcyIsInJpZCI6IjI0OTJlMGIwLTc0ZjQtNGU5Ni05MWNiLTdjYjM1MjExMzA0MSJ9.OIwdSsaJLQs67LUfD-1hGc6sUt_hQ4fwtchuTnYGL9wCwG8JhSQi6LqLaEcL2BW0M6cQ3Y0Jel4rJ5qSGYwADw});
 
 function isAuthorized(req) {
   const header = req.headers.authorization || '';
