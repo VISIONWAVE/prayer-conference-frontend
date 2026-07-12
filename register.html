@@ -252,7 +252,6 @@
     </button>
 
     <p class="copy-note" id="reg-copy-note">✓ Your answers were copied — paste them once you're in the group.</p>
-    <!--<p class="placeholder-note">Submitting copies your answers and opens the registration WhatsApp group — replace PASTE_REGISTRATION_GROUP_LINK in the code with the real group invite link.</p>--->
   </div>
 </main>
 
@@ -269,12 +268,16 @@
     return false;
   }
 
+  // Replace with your deployed Google Apps Script Web App URL (ends in /exec)
+  const SHEET_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby94yBkSAtwSub2AC-YeWZFa_yeM1wok9XqdiyG2D6oILYOHiewrE_uMm0MmzaHRe70SA/exec';
+
   function sendToBackend(payload){
-    fetch('/api/submit', {
+    if(!SHEET_SCRIPT_URL || SHEET_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) return;
+    fetch(SHEET_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
-    }).catch(err => console.error('Backend submit failed:', err));
+    }).catch(err => console.error('Sheet submit failed:', err));
   }
 
   function submitRegistration(){
